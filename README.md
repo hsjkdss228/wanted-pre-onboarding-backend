@@ -15,3 +15,15 @@
 - Validation
 - Flyway Migration
 - Lombok
+
+## 요구사항 분석
+
+> 요구사항 분석에는 [뱅크샐러드 테크 스펙 템플릿]을 참고했습니다.
+
+- [채용공고 등록]
+
+[//]: # (외부 링크 모음)
+
+[뱅크샐러드 테크 스펙 템플릿]: https://docs.google.com/document/d/1nhozeUvJYKytE_b_9-YP4Fyw0wtykl9haCG4Wwjb9Ws/edit
+
+[채용공고 등록]: https://docs.google.com/document/d/1SV6C79ap69r2hCcXmEoNEVpMQw8lDQBi8aZNWkKEc3E/edit?usp=sharing

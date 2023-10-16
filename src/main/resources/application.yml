@@ -7,10 +7,24 @@ spring:
     username: root
     password: root-password
     driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
   flyway:
     enabled: true
-    baseline-version: 1.0.0-001
+    validateMigrationNaming: true
+    baseline-version: 1
     baselineOnMigrate: true
+
+#logging:
+#  level:
+#    org:
+#      hibernate:
+#        SQL: DEBUG
+#        type:
+#          descriptor:
+#            sql:
+#              BasicBinder: TRACE
 
 ---
 spring:
@@ -20,3 +34,6 @@ spring:
   datasource:
     url: jdbc:h2:mem:test
     driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
