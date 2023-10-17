@@ -1,6 +1,7 @@
 package com.inu.wanted.preassignment.controllers;
 
 import com.inu.wanted.preassignment.applications.CreateJobOpeningService;
+import com.inu.wanted.preassignment.applications.DeleteJobOpeningService;
 import com.inu.wanted.preassignment.applications.ModifyJobOpeningService;
 import com.inu.wanted.preassignment.dtos.CreateJobOpeningRequestDto;
 import com.inu.wanted.preassignment.dtos.CreateJobOpeningResponseDto;
@@ -22,6 +23,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -37,6 +39,9 @@ class JobOpeningControllerTest {
 
     @MockBean
     private ModifyJobOpeningService modifyJobOpeningService;
+
+    @MockBean
+    private DeleteJobOpeningService deleteJobOpeningService;
 
     @Nested
     @DisplayName("POST /job-openings")
@@ -342,6 +347,27 @@ class JobOpeningControllerTest {
                             "techStackNames": ["Rust", "Swift"]
                         }
                         """))
+                .andExpect(status().isNotFound());
+        }
+    }
+
+    @Nested
+    @DisplayName("DELETE /job-openings/{jobOpeningId}")
+    class deleteJobOpening {
+        @Test
+        @DisplayName("Success")
+        void deleted() throws Exception {
+            mockMvc.perform(delete("/job-openings/JOB_OPENING_UUID"))
+                .andExpect(status().isNoContent());
+        }
+
+        @Test
+        @DisplayName("Failure: Throws JobOpeningNotFound")
+        void jobOpeningNotFound() throws Exception {
+            doThrow(JobOpeningNotFound.class)
+                .when(deleteJobOpeningService).deleteJobOpening(any());
+
+            mockMvc.perform(delete("/job-openings/JOB_OPENING_UUID"))
                 .andExpect(status().isNotFound());
         }
     }

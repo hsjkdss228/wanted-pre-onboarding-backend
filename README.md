@@ -22,6 +22,7 @@
 
 - [채용공고 등록]
 - [채용공고 수정]
+- [채용공고 삭제]
 
 [//]: # (외부 링크 모음)
 
@@ -29,3 +30,4 @@
 
 [채용공고 등록]: https://docs.google.com/document/d/1SV6C79ap69r2hCcXmEoNEVpMQw8lDQBi8aZNWkKEc3E/edit?usp=sharing
 [채용공고 수정]: https://docs.google.com/document/d/13wpi87PiPLiV32N2LgIt5I10uRD98t33PpU__pS1x5A/edit?usp=sharing
+[채용공고 삭제]: https://docs.google.com/document/d/1tHIuKnIGatT6ntCYUXRNKZoaAIBDZPIFrmPuuEMaZqg/edit?usp=sharing
