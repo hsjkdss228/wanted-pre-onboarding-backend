@@ -15,7 +15,7 @@ class UUIDGeneratorTest {
     }
 
     @Test
-    @DisplayName("Generate Random Job Opening UUID")
+    @DisplayName("Generate Random jobOpeningUUID")
     void generateRandomJobOpeningUUID() {
         String jobOpeningId = uuidGenerator.generateRandomJobOpeningUUID();
 

@@ -20,6 +20,10 @@ public class JobOpeningId implements Serializable {
         this.value = value;
     }
 
+    public static JobOpeningId of(String jobOpeningId) {
+        return new JobOpeningId(jobOpeningId);
+    }
+
     public String value() {
         return value;
     }

@@ -1,15 +1,20 @@
 package com.inu.wanted.preassignment.controllers;
 
 import com.inu.wanted.preassignment.applications.CreateJobOpeningService;
+import com.inu.wanted.preassignment.applications.ModifyJobOpeningService;
 import com.inu.wanted.preassignment.dtos.CreateJobOpeningRequestDto;
 import com.inu.wanted.preassignment.dtos.CreateJobOpeningResponseDto;
+import com.inu.wanted.preassignment.dtos.ModifyJobOpeningRequestDto;
 import com.inu.wanted.preassignment.exceptions.CompanyNotFound;
 import com.inu.wanted.preassignment.exceptions.InvalidJobOpeningInputs;
+import com.inu.wanted.preassignment.exceptions.JobOpeningNotFound;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -19,9 +24,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("job-openings")
 public class JobOpeningController {
     private final CreateJobOpeningService createJobOpeningService;
+    private final ModifyJobOpeningService modifyJobOpeningService;
 
-    public JobOpeningController(CreateJobOpeningService createJobOpeningService) {
+    public JobOpeningController(CreateJobOpeningService createJobOpeningService,
+                                ModifyJobOpeningService modifyJobOpeningService) {
         this.createJobOpeningService = createJobOpeningService;
+        this.modifyJobOpeningService = modifyJobOpeningService;
     }
 
     @PostMapping
@@ -40,6 +48,23 @@ public class JobOpeningController {
         return createJobOpeningService.createJobOpening(createJobOpeningRequestDto);
     }
 
+    @PutMapping("{jobOpeningId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void modify(
+        @PathVariable String jobOpeningId,
+        @Validated @RequestBody ModifyJobOpeningRequestDto modifyJobOpeningRequestDto,
+        BindingResult bindingResult
+    ) {
+        if (bindingResult.hasErrors()) {
+            String message = bindingResult.getAllErrors()
+                .get(0)
+                .getDefaultMessage();
+            throw new InvalidJobOpeningInputs(message);
+        }
+
+        modifyJobOpeningService.modifyJobOpening(jobOpeningId, modifyJobOpeningRequestDto);
+    }
+
     @ExceptionHandler(InvalidJobOpeningInputs.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String invalidJobOpeningInputs(RuntimeException exception) {
@@ -49,6 +74,12 @@ public class JobOpeningController {
     @ExceptionHandler(CompanyNotFound.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String companyNotFound(RuntimeException exception) {
+        return exception.getMessage();
+    }
+
+    @ExceptionHandler(JobOpeningNotFound.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String jobOpeningNotFound(RuntimeException exception) {
         return exception.getMessage();
     }
 }

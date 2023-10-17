@@ -109,4 +109,22 @@ public class JobOpening {
         this.description = builder.description;
         this.techStacks.addAll(builder.techStacks);
     }
+
+    public void changePosition(String name) {
+        position = new JobOpeningPosition(name);
+    }
+
+    public void changeRewards(Long amount) {
+        Money money = new Money(amount);
+        rewards = new JobOpeningRewards(money);
+    }
+
+    public void changeDescription(String body) {
+        description = new JobOpeningDescription(body);
+    }
+
+    public void changeTechStacks(List<String> names) {
+        techStacks.clear();
+        names.forEach(name -> techStacks.add(new TechStack(name)));
+    }
 }

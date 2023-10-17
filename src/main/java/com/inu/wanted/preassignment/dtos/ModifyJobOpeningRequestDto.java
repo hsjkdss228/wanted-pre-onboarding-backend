@@ -14,10 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class CreateJobOpeningRequestDto {
-    @NotBlank(message = "companyId Required")
-    private String companyId;
-
+public class ModifyJobOpeningRequestDto {
     @NotBlank(message = "positionName Required")
     private String positionName;
 

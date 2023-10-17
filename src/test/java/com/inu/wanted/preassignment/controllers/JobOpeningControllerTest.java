@@ -1,9 +1,11 @@
 package com.inu.wanted.preassignment.controllers;
 
 import com.inu.wanted.preassignment.applications.CreateJobOpeningService;
+import com.inu.wanted.preassignment.applications.ModifyJobOpeningService;
 import com.inu.wanted.preassignment.dtos.CreateJobOpeningRequestDto;
 import com.inu.wanted.preassignment.dtos.CreateJobOpeningResponseDto;
 import com.inu.wanted.preassignment.exceptions.CompanyNotFound;
+import com.inu.wanted.preassignment.exceptions.JobOpeningNotFound;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,10 +17,13 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -30,9 +35,12 @@ class JobOpeningControllerTest {
     @MockBean
     private CreateJobOpeningService createJobOpeningService;
 
+    @MockBean
+    private ModifyJobOpeningService modifyJobOpeningService;
+
     @Nested
     @DisplayName("POST /job-openings")
-    class create {
+    class createJobOpening {
         @Test
         @DisplayName("Success")
         void created() throws Exception {
@@ -61,7 +69,7 @@ class JobOpeningControllerTest {
         }
 
         @Test
-        @DisplayName("Failure: Blank Company Id")
+        @DisplayName("Failure: Blank companyId")
         void blankCompanyId() throws Exception {
             mockMvc.perform(post("/job-openings")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -75,13 +83,13 @@ class JobOpeningControllerTest {
                         }
                         """))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Company Id")));
+                .andExpect(content().string(containsString("companyId")));
 
             verify(createJobOpeningService, never()).createJobOpening(any());
         }
 
         @Test
-        @DisplayName("Failure: Blank Position Name")
+        @DisplayName("Failure: Blank positionName")
         void blankPositionName() throws Exception {
             mockMvc.perform(post("/job-openings")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -95,13 +103,13 @@ class JobOpeningControllerTest {
                         }
                         """))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Position Name")));
+                .andExpect(content().string(containsString("positionName")));
 
             verify(createJobOpeningService, never()).createJobOpening(any());
         }
 
         @Test
-        @DisplayName("Failure: Null Rewards")
+        @DisplayName("Failure: Null rewards")
         void nullRewards() throws Exception {
             mockMvc.perform(post("/job-openings")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -115,13 +123,13 @@ class JobOpeningControllerTest {
                         }
                         """))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Rewards")));
+                .andExpect(content().string(containsString("rewards")));
 
             verify(createJobOpeningService, never()).createJobOpening(any());
         }
 
         @Test
-        @DisplayName("Failure: Blank Description Body")
+        @DisplayName("Failure: Blank descriptionBody")
         void blankDescriptionBody() throws Exception {
             mockMvc.perform(post("/job-openings")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -135,14 +143,14 @@ class JobOpeningControllerTest {
                         }
                         """))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Description Body")));
+                .andExpect(content().string(containsString("descriptionBody")));
 
             verify(createJobOpeningService, never()).createJobOpening(any());
         }
 
         @Test
-        @DisplayName("Failure: Null Tech Stack")
-        void nullTechStacks() throws Exception {
+        @DisplayName("Failure: Null techStackNames")
+        void nullTechStackNames() throws Exception {
             mockMvc.perform(post("/job-openings")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
@@ -155,14 +163,14 @@ class JobOpeningControllerTest {
                         }
                         """))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Tech Stack")));
+                .andExpect(content().string(containsString("techStackName")));
 
             verify(createJobOpeningService, never()).createJobOpening(any());
         }
 
         @Test
-        @DisplayName("Failure: Empty Tech Stack")
-        void emptyTechStacks() throws Exception {
+        @DisplayName("Failure: Empty techStackNames")
+        void emptyTechStackNames() throws Exception {
             mockMvc.perform(post("/job-openings")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
@@ -175,13 +183,13 @@ class JobOpeningControllerTest {
                         }
                         """))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Tech Stack")));
+                .andExpect(content().string(containsString("techStackName")));
 
             verify(createJobOpeningService, never()).createJobOpening(any());
         }
 
         @Test
-        @DisplayName("Failure: Company Not Found")
+        @DisplayName("Failure: Throws CompanyNotFound")
         void companyNotFound() throws Exception {
             given(createJobOpeningService
                 .createJobOpening(any(CreateJobOpeningRequestDto.class)))
@@ -196,6 +204,142 @@ class JobOpeningControllerTest {
                             "rewards": 1000000,
                             "descriptionBody": "원티드랩에서 백엔드 주니어 개발자를 채용합니다. 자격요건은..",
                             "techStackNames": ["Java", "Spring Boot"]
+                        }
+                        """))
+                .andExpect(status().isNotFound());
+        }
+    }
+
+    @Nested
+    @DisplayName("PUT /job-openings/{jobOpeningId}")
+    class modifyJobOpening {
+        @Test
+        @DisplayName("Success")
+        void modified() throws Exception {
+            mockMvc.perform(put("/job-openings/JOB_OPENING_UUID")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                            "positionName": "백엔드 주니어 개발자",
+                            "rewards": 1000000,
+                            "descriptionBody": "원티드랩에서 백엔드 주니어 개발자를 '적극적으로!' 채용합니다. 자격요건은..",
+                            "techStackNames": ["Java", "Kotlin", "Spring Boot", "WebFlux"]
+                        }
+                        """))
+                .andExpect(status().isNoContent());
+
+            verify(modifyJobOpeningService)
+                .modifyJobOpening(eq("JOB_OPENING_UUID"), any());
+        }
+
+        @Test
+        @DisplayName("Failure: Blank positionName")
+        void blankPositionName() throws Exception {
+            mockMvc.perform(put("/job-openings/JOB_OPENING_UUID")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                            "positionName": null,
+                            "rewards": 1000000,
+                            "descriptionBody": "원티드랩에서 백엔드 만렙 개발자를 채용합니다. 자격요건은..",
+                            "techStackNames": ["Rust", "Swift"]
+                        }
+                        """))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("positionName")));
+
+            verify(modifyJobOpeningService, never()).modifyJobOpening(any(), any());
+        }
+
+        @Test
+        @DisplayName("Failure: Null rewards")
+        void nullRewards() throws Exception {
+            mockMvc.perform(put("/job-openings/JOB_OPENING_UUID")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                            "positionName": "백엔드 만렙 개발자",
+                            "descriptionBody": "원티드랩에서 백엔드 만렙 개발자를 채용합니다. 자격요건은..",
+                            "techStackNames": ["Rust", "Swift"]
+                        }
+                        """))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("rewards")));
+
+            verify(modifyJobOpeningService, never()).modifyJobOpening(any(), any());
+        }
+
+        @Test
+        @DisplayName("Failure: Blank descriptionBody")
+        void blankDescriptionBody() throws Exception {
+            mockMvc.perform(put("/job-openings/JOB_OPENING_UUID")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                            "positionName": "백엔드 만렙 개발자",
+                            "rewards": 1000000,
+                            "descriptionBody": "              ",
+                            "techStackNames": ["Rust", "Swift"]
+                        }
+                        """))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("descriptionBody")));
+
+            verify(modifyJobOpeningService, never()).modifyJobOpening(any(), any());
+        }
+
+        @Test
+        @DisplayName("Failure: Null techStackNames")
+        void nullTechStackNames() throws Exception {
+            mockMvc.perform(put("/job-openings/JOB_OPENING_UUID")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                            "positionName": "백엔드 만렙 개발자",
+                            "rewards": 1000000,
+                            "descriptionBody": "원티드랩에서 백엔드 만렙 개발자를 채용합니다. 자격요건은..",
+                            "techStackNames": null
+                        }
+                        """))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("techStackName")));
+
+            verify(modifyJobOpeningService, never()).modifyJobOpening(any(), any());
+        }
+
+        @Test
+        @DisplayName("Failure: Empty techStackNames")
+        void emptyTechStackNames() throws Exception {
+            mockMvc.perform(put("/job-openings/JOB_OPENING_UUID")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                            "positionName": "백엔드 만렙 개발자",
+                            "rewards": 1000000,
+                            "descriptionBody": "원티드랩에서 백엔드 만렙 개발자를 채용합니다. 자격요건은..",
+                            "techStackNames": []
+                        }
+                        """))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("techStackName")));
+
+            verify(modifyJobOpeningService, never()).modifyJobOpening(any(), any());
+        }
+
+        @Test
+        @DisplayName("Failure: Throws JobOpeningNotFound")
+        void jobOpeningNotFound() throws Exception {
+            doThrow(JobOpeningNotFound.class)
+                .when(modifyJobOpeningService).modifyJobOpening(any(), any());
+
+            mockMvc.perform(put("/job-openings/JOB_OPENING_UUID")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                            "positionName": "백엔드 만렙 개발자",
+                            "rewards": 1000000,
+                            "descriptionBody": "원티드랩에서 백엔드 만렙 개발자를 채용합니다. 자격요건은..",
+                            "techStackNames": ["Rust", "Swift"]
                         }
                         """))
                 .andExpect(status().isNotFound());
