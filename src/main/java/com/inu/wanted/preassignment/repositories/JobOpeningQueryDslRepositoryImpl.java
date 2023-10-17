@@ -96,10 +96,10 @@ public class JobOpeningQueryDslRepositoryImpl implements
             .where(jobOpening.id.in(jobOpeningIds))
             .fetch();
 
-        jobOpeningIdAndTechStacks.forEach(jobOpeningIdAndTechStackName -> {
-            String jobOpeningId = jobOpeningIdAndTechStackName
+        jobOpeningIdAndTechStacks.forEach(jobOpeningIdAndTechStack -> {
+            String jobOpeningId = jobOpeningIdAndTechStack
                 .get(jobOpening.id.value);
-            String techStackName = ((TechStack) jobOpeningIdAndTechStackName
+            String techStackName = ((TechStack) jobOpeningIdAndTechStack
                 .get(jobOpening.techStacks))
                 .name();
 
