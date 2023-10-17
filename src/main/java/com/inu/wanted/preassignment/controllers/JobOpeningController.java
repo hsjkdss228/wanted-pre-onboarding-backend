@@ -1,6 +1,7 @@
 package com.inu.wanted.preassignment.controllers;
 
 import com.inu.wanted.preassignment.applications.CreateJobOpeningService;
+import com.inu.wanted.preassignment.applications.DeleteJobOpeningService;
 import com.inu.wanted.preassignment.applications.ModifyJobOpeningService;
 import com.inu.wanted.preassignment.dtos.CreateJobOpeningRequestDto;
 import com.inu.wanted.preassignment.dtos.CreateJobOpeningResponseDto;
@@ -11,6 +12,7 @@ import com.inu.wanted.preassignment.exceptions.JobOpeningNotFound;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,11 +27,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class JobOpeningController {
     private final CreateJobOpeningService createJobOpeningService;
     private final ModifyJobOpeningService modifyJobOpeningService;
+    private final DeleteJobOpeningService deleteJobOpeningService;
 
     public JobOpeningController(CreateJobOpeningService createJobOpeningService,
-                                ModifyJobOpeningService modifyJobOpeningService) {
+                                ModifyJobOpeningService modifyJobOpeningService,
+                                DeleteJobOpeningService deleteJobOpeningService) {
         this.createJobOpeningService = createJobOpeningService;
         this.modifyJobOpeningService = modifyJobOpeningService;
+        this.deleteJobOpeningService = deleteJobOpeningService;
     }
 
     @PostMapping
@@ -63,6 +68,12 @@ public class JobOpeningController {
         }
 
         modifyJobOpeningService.modifyJobOpening(jobOpeningId, modifyJobOpeningRequestDto);
+    }
+
+    @DeleteMapping("{jobOpeningId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable String jobOpeningId) {
+        deleteJobOpeningService.deleteJobOpening(jobOpeningId);
     }
 
     @ExceptionHandler(InvalidJobOpeningInputs.class)
