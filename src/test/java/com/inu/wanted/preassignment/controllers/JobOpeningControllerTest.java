@@ -5,8 +5,11 @@ import com.inu.wanted.preassignment.applications.DeleteJobOpeningService;
 import com.inu.wanted.preassignment.applications.ModifyJobOpeningService;
 import com.inu.wanted.preassignment.dtos.CreateJobOpeningRequestDto;
 import com.inu.wanted.preassignment.dtos.CreateJobOpeningResponseDto;
+import com.inu.wanted.preassignment.dtos.GetJobOpeningsResponseDto;
+import com.inu.wanted.preassignment.dtos.JobOpeningListDto;
 import com.inu.wanted.preassignment.exceptions.CompanyNotFound;
 import com.inu.wanted.preassignment.exceptions.JobOpeningNotFound;
+import com.inu.wanted.preassignment.repositories.JobOpeningRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,6 +19,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -24,6 +29,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -42,6 +48,61 @@ class JobOpeningControllerTest {
 
     @MockBean
     private DeleteJobOpeningService deleteJobOpeningService;
+
+    @MockBean
+    private JobOpeningRepository jobOpeningRepository;
+
+    @Nested
+    @DisplayName("GET /job-openings")
+    class getJobOpenings {
+        @Test
+        @DisplayName("Get List of jobOpenings")
+        void getList() throws Exception {
+            List<JobOpeningListDto> jobOpeningListDtos = List.of(
+                JobOpeningListDto.builder()
+                    .id("JOB_OPENING_UUID_1")
+                    .companyName("Wanted Lab")
+                    .companyCountry("South Korea")
+                    .companyRegion("Seoul")
+                    .positionName("Junior Backend Developer")
+                    .rewards(1_000_000L)
+                    .techStackNames(List.of("Python", "Django"))
+                    .build(),
+                JobOpeningListDto.builder()
+                    .id("JOB_OPENING_UUID_2")
+                    .companyName("Very Huge Dinosaur Company")
+                    .companyCountry("USA")
+                    .companyRegion("New York City")
+                    .positionName("Majestic Developer")
+                    .rewards(1_000_000_000_000L)
+                    .techStackNames(List.of("Power", "Money"))
+                    .build()
+            );
+            GetJobOpeningsResponseDto getJobOpeningsResponseDto
+                = new GetJobOpeningsResponseDto(jobOpeningListDtos);
+            given(jobOpeningRepository.findAllJobOpenings())
+                .willReturn(getJobOpeningsResponseDto);
+
+            mockMvc.perform(get("/job-openings"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("JOB_OPENING_UUID_1")))
+                .andExpect(content().string(containsString("JOB_OPENING_UUID_2")));
+        }
+
+        @Test
+        @DisplayName("Get empty List")
+        void getEmptyList() throws Exception {
+            List<JobOpeningListDto> jobOpeningListDtos = List.of();
+            GetJobOpeningsResponseDto getJobOpeningsResponseDto
+                = new GetJobOpeningsResponseDto(jobOpeningListDtos);
+            given(jobOpeningRepository.findAllJobOpenings())
+                .willReturn(getJobOpeningsResponseDto);
+
+            mockMvc.perform(get("/job-openings"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("[]")));
+        }
+    }
 
     @Nested
     @DisplayName("POST /job-openings")
