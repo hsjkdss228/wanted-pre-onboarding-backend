@@ -75,11 +75,12 @@ class JobOpeningControllerTest {
                     .companyRegion("New York City")
                     .positionName("Majestic Developer")
                     .rewards(1_000_000_000_000L)
-                    .techStackNames(List.of("Power", "Money"))
+                    .techStackNames(List.of("Power"))
                     .build()
             );
             GetJobOpeningsResponseDto getJobOpeningsResponseDto
                 = new GetJobOpeningsResponseDto(jobOpeningListDtos);
+
             given(jobOpeningRepository.findAllJobOpenings())
                 .willReturn(getJobOpeningsResponseDto);
 
@@ -95,6 +96,7 @@ class JobOpeningControllerTest {
             List<JobOpeningListDto> jobOpeningListDtos = List.of();
             GetJobOpeningsResponseDto getJobOpeningsResponseDto
                 = new GetJobOpeningsResponseDto(jobOpeningListDtos);
+
             given(jobOpeningRepository.findAllJobOpenings())
                 .willReturn(getJobOpeningsResponseDto);
 
