@@ -70,7 +70,7 @@ class CreateJobOpeningServiceTest {
     }
 
     @Test
-    @DisplayName("Failure: Company Not Found")
+    @DisplayName("Failure: Throws CompanyNotFound")
     void companyNotFound() {
         String companyId = "COMPANY_BAD_UUID";
 

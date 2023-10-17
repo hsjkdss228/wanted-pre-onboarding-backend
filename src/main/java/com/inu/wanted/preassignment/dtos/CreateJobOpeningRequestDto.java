@@ -15,18 +15,18 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 public class CreateJobOpeningRequestDto {
-    @NotBlank(message = "Company Id Required")
+    @NotBlank(message = "companyId Required")
     private String companyId;
 
-    @NotBlank(message = "Position Name Required")
+    @NotBlank(message = "positionName Required")
     private String positionName;
 
-    @NotNull(message = "Rewards Required")
+    @NotNull(message = "rewards Required")
     private Long rewards;
 
-    @NotBlank(message = "Description Body Required")
+    @NotBlank(message = "descriptionBody Required")
     private String descriptionBody;
 
-    @NotEmpty(message = "At Least 1 Tech Stack Required")
+    @NotEmpty(message = "At Least 1 techStackName Required")
     private List<String> techStackNames;
 }
