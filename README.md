@@ -1,5 +1,7 @@
 # 원티드 프리온보딩 백엔드 인턴십 선발 과제
 
+- [안내 링크]
+
 ## 개요
 
 - 기업 채용을 위한 웹 서비스 서버 애플리케이션
@@ -16,6 +18,40 @@
 - Flyway Migration
 - Lombok
 
+## How To Start
+
+### 애플리케이션 실행 요구사항
+
+- Java 17
+- Docker
+  - mysql:8.0
+
+### 테스트
+
+```bash
+./gradlew test
+```
+
+### 애플리케이션 실행
+
+```bash
+docker run -it -p 3306:3306 \
+    --name wanted-pre-onboarding-backend-database \
+    -e MYSQL_ROOT_PASSWORD=root-password \
+    -e MYSQL_DATABASE=db \
+    -d mysql:8.0 \
+    --character-set-server=utf8mb4 \
+    --collation-server=utf8mb4_unicode_ci
+
+./gradlew bootRun
+```
+
+### API 요청 호스트
+
+```text
+http://localhost:8000/
+```
+
 ## 요구사항 분석
 
 > 요구사항 분석에는 [뱅크샐러드 테크 스펙 템플릿]을 참고했습니다.
@@ -29,6 +65,8 @@
 - [채용공고 지원]
 
 [//]: # (외부 링크 모음)
+
+[안내 링크]: https://bow-hair-db3.notion.site/1850bca26fda4e0ca1410df270c03409
 
 [뱅크샐러드 테크 스펙 템플릿]: https://docs.google.com/document/d/1nhozeUvJYKytE_b_9-YP4Fyw0wtykl9haCG4Wwjb9Ws/edit
 
