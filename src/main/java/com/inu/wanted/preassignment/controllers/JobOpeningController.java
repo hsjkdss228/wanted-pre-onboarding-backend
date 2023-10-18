@@ -2,9 +2,11 @@ package com.inu.wanted.preassignment.controllers;
 
 import com.inu.wanted.preassignment.applications.CreateJobOpeningService;
 import com.inu.wanted.preassignment.applications.DeleteJobOpeningService;
+import com.inu.wanted.preassignment.applications.GetJobOpeningDetailService;
 import com.inu.wanted.preassignment.applications.ModifyJobOpeningService;
 import com.inu.wanted.preassignment.dtos.CreateJobOpeningRequestDto;
 import com.inu.wanted.preassignment.dtos.CreateJobOpeningResponseDto;
+import com.inu.wanted.preassignment.dtos.GetJobOpeningDetailResponseDto;
 import com.inu.wanted.preassignment.dtos.GetJobOpeningsResponseDto;
 import com.inu.wanted.preassignment.dtos.ModifyJobOpeningRequestDto;
 import com.inu.wanted.preassignment.exceptions.CompanyNotFound;
@@ -32,15 +34,18 @@ public class JobOpeningController {
     private final CreateJobOpeningService createJobOpeningService;
     private final ModifyJobOpeningService modifyJobOpeningService;
     private final DeleteJobOpeningService deleteJobOpeningService;
+    private final GetJobOpeningDetailService getJobOpeningDetailService;
     private final JobOpeningRepository jobOpeningRepository;
 
     public JobOpeningController(CreateJobOpeningService createJobOpeningService,
                                 ModifyJobOpeningService modifyJobOpeningService,
                                 DeleteJobOpeningService deleteJobOpeningService,
+                                GetJobOpeningDetailService getJobOpeningDetailService,
                                 JobOpeningRepository jobOpeningRepository) {
         this.createJobOpeningService = createJobOpeningService;
         this.modifyJobOpeningService = modifyJobOpeningService;
         this.deleteJobOpeningService = deleteJobOpeningService;
+        this.getJobOpeningDetailService = getJobOpeningDetailService;
         this.jobOpeningRepository = jobOpeningRepository;
     }
 
@@ -50,6 +55,14 @@ public class JobOpeningController {
         @RequestParam(value = "keyword", required = false) String keyword
     ) {
         return jobOpeningRepository.findAllJobOpenings(keyword);
+    }
+
+    @GetMapping("{jobOpeningId}")
+    @ResponseStatus(HttpStatus.OK)
+    public GetJobOpeningDetailResponseDto jobOpeningDetail(
+        @PathVariable String jobOpeningId
+    ) {
+        return getJobOpeningDetailService.getJobOpeningDetail(jobOpeningId);
     }
 
     @PostMapping

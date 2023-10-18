@@ -3,6 +3,9 @@ package com.inu.wanted.preassignment.repositories;
 import com.inu.wanted.preassignment.config.QueryDslTestConfig;
 import com.inu.wanted.preassignment.dtos.GetJobOpeningsResponseDto;
 import com.inu.wanted.preassignment.dtos.JobOpeningListDto;
+import com.inu.wanted.preassignment.dtos.JobOpeningListInDetailDto;
+import com.inu.wanted.preassignment.models.company.CompanyId;
+import com.inu.wanted.preassignment.models.jobopening.JobOpeningId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -71,37 +74,15 @@ class JobOpeningQueryDslRepositoryImplTest {
     }
 
     @Nested
-    @DisplayName("Without keyword")
-    class withoutKeyword {
-        @Test
-        @DisplayName("Query all of JobOpeningListDtos in List order by createdAt descendent")
-        void findAllJobOpenings() {
-            String keyword = null;
-
-            GetJobOpeningsResponseDto getJobOpeningsResponseDto = repository
-                .findAllJobOpenings(keyword);
-            assertThat(getJobOpeningsResponseDto).isNotNull();
-
-            List<JobOpeningListDto> jobOpeningListDtos = getJobOpeningsResponseDto
-                .jobOpenings();
-            assertThat(jobOpeningListDtos).hasSize(4);
-            assertThat(jobOpeningListDtos.get(0).id()).isEqualTo("JOB_OPENING_UUID_2");
-            assertThat(jobOpeningListDtos.get(1).id()).isEqualTo("JOB_OPENING_UUID_4");
-            assertThat(jobOpeningListDtos.get(2).id()).isEqualTo("JOB_OPENING_UUID_3");
-            assertThat(jobOpeningListDtos.get(3).id()).isEqualTo("JOB_OPENING_UUID_1");
-        }
-    }
-
-    @Nested
-    @DisplayName("With keyword")
-    class withKeyword {
+    @DisplayName("Find all JobOpenings")
+    class findAllJobOpenings {
         @Nested
-        @DisplayName("When contains in TechStacks")
-        class whenContainsKeyword {
+        @DisplayName("Without keyword")
+        class withoutKeyword {
             @Test
-            @DisplayName("Query targeted JobOpeningListDtos in List order by createdAt descendent")
-            void findTargetedJobOpenings() {
-                String keyword = "tech1";
+            @DisplayName("Query all of JobOpeningListDtos in List order by createdAt descendent")
+            void findAllJobOpenings() {
+                String keyword = null;
 
                 GetJobOpeningsResponseDto getJobOpeningsResponseDto = repository
                     .findAllJobOpenings(keyword);
@@ -109,17 +90,64 @@ class JobOpeningQueryDslRepositoryImplTest {
 
                 List<JobOpeningListDto> jobOpeningListDtos = getJobOpeningsResponseDto
                     .jobOpenings();
-                assertThat(jobOpeningListDtos).hasSize(3);
-
-                List<String> jobOpeningIds = List.of(
-                      "JOB_OPENING_UUID_1",
-                      "JOB_OPENING_UUID_3",
-                      "JOB_OPENING_UUID_4"
-                );
-                jobOpeningListDtos.forEach(jobOpeningListDto -> {
-                    assertThat(jobOpeningIds).contains(jobOpeningListDto.id());
-                });
+                assertThat(jobOpeningListDtos).hasSize(4);
+                assertThat(jobOpeningListDtos.get(0).id()).isEqualTo("JOB_OPENING_UUID_2");
+                assertThat(jobOpeningListDtos.get(1).id()).isEqualTo("JOB_OPENING_UUID_4");
+                assertThat(jobOpeningListDtos.get(2).id()).isEqualTo("JOB_OPENING_UUID_3");
+                assertThat(jobOpeningListDtos.get(3).id()).isEqualTo("JOB_OPENING_UUID_1");
             }
+        }
+
+        @Nested
+        @DisplayName("With keyword")
+        class withKeyword {
+            @Nested
+            @DisplayName("When contains in TechStacks")
+            class whenContainsKeyword {
+                @Test
+                @DisplayName("Query targeted JobOpeningListDtos in List order by createdAt descendent")
+                void findTargetedJobOpenings() {
+                    String keyword = "tech1";
+
+                    GetJobOpeningsResponseDto getJobOpeningsResponseDto = repository
+                        .findAllJobOpenings(keyword);
+                    assertThat(getJobOpeningsResponseDto).isNotNull();
+
+                    List<JobOpeningListDto> jobOpeningListDtos = getJobOpeningsResponseDto
+                        .jobOpenings();
+                    assertThat(jobOpeningListDtos).hasSize(3);
+
+                    List<String> jobOpeningIds = List.of(
+                        "JOB_OPENING_UUID_1",
+                        "JOB_OPENING_UUID_3",
+                        "JOB_OPENING_UUID_4"
+                    );
+                    jobOpeningListDtos.forEach(jobOpeningListDto -> {
+                        assertThat(jobOpeningIds).contains(jobOpeningListDto.id());
+                    });
+                }
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("Find all other JobOpenings")
+    class findAllOtherJobOpenings {
+        @Test
+        @DisplayName("Query JobOpeningListInDetailDtos with " +
+            "matching CompanyId and not matching JobOpeningId in List")
+        void exceptGivenJobOpeningId() {
+            JobOpeningId jobOpeningId = JobOpeningId.of("JOB_OPENING_UUID_3");
+            CompanyId companyId = CompanyId.of("COMPANY_UUID_2");
+
+            List<JobOpeningListInDetailDto> otherJobOpenings = repository
+                .findAllOtherJobOpenings(jobOpeningId, companyId);
+            assertThat(otherJobOpenings).isNotEmpty();
+            assertThat(otherJobOpenings).hasSize(1);
+
+            JobOpeningListInDetailDto otherJobOpening = otherJobOpenings.get(0);
+            assertThat(otherJobOpening.id()).isNotEqualTo("JOB_OPENING_UUID_3");
+            assertThat(otherJobOpening.id()).isEqualTo("JOB_OPENING_UUID_4");
         }
     }
 }
