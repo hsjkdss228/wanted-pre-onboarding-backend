@@ -55,54 +55,94 @@ class JobOpeningControllerTest {
     @Nested
     @DisplayName("GET /job-openings")
     class getJobOpenings {
-        @Test
-        @DisplayName("Get List of jobOpenings")
-        void getList() throws Exception {
-            List<JobOpeningListDto> jobOpeningListDtos = List.of(
-                JobOpeningListDto.builder()
-                    .id("JOB_OPENING_UUID_1")
-                    .companyName("Wanted Lab")
-                    .companyCountry("South Korea")
-                    .companyRegion("Seoul")
-                    .positionName("Junior Backend Developer")
-                    .rewards(1_000_000L)
-                    .techStackNames(List.of("Python", "Django"))
-                    .build(),
-                JobOpeningListDto.builder()
-                    .id("JOB_OPENING_UUID_2")
-                    .companyName("Very Huge Dinosaur Company")
-                    .companyCountry("USA")
-                    .companyRegion("New York City")
-                    .positionName("Majestic Developer")
-                    .rewards(1_000_000_000_000L)
-                    .techStackNames(List.of("Power"))
-                    .build()
-            );
-            GetJobOpeningsResponseDto getJobOpeningsResponseDto
-                = new GetJobOpeningsResponseDto(jobOpeningListDtos);
+        @Nested
+        @DisplayName("Without query parameters")
+        class withoutQueryParameters {
+            @Test
+            @DisplayName("Get List of JobOpenings")
+            void getList() throws Exception {
+                List<JobOpeningListDto> jobOpeningListDtos = List.of(
+                    JobOpeningListDto.builder()
+                        .id("JOB_OPENING_UUID_1")
+                        .companyName("Wanted Lab")
+                        .companyCountry("South Korea")
+                        .companyRegion("Seoul")
+                        .positionName("Junior Backend Developer")
+                        .rewards(1_000_000L)
+                        .techStackNames(List.of("Python", "Django"))
+                        .build(),
+                    JobOpeningListDto.builder()
+                        .id("JOB_OPENING_UUID_2")
+                        .companyName("Very Huge Dinosaur Company")
+                        .companyCountry("USA")
+                        .companyRegion("New York City")
+                        .positionName("Majestic Developer")
+                        .rewards(1_000_000_000_000L)
+                        .techStackNames(List.of("Power"))
+                        .build()
+                );
+                GetJobOpeningsResponseDto getJobOpeningsResponseDto
+                    = new GetJobOpeningsResponseDto(jobOpeningListDtos);
 
-            given(jobOpeningRepository.findAllJobOpenings())
-                .willReturn(getJobOpeningsResponseDto);
+                String keyword = null;
 
-            mockMvc.perform(get("/job-openings"))
-                .andExpect(status().isOk())
-                .andExpect(content().string(containsString("JOB_OPENING_UUID_1")))
-                .andExpect(content().string(containsString("JOB_OPENING_UUID_2")));
+                given(jobOpeningRepository.findAllJobOpenings(keyword))
+                    .willReturn(getJobOpeningsResponseDto);
+
+                mockMvc.perform(get("/job-openings"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().string(containsString("JOB_OPENING_UUID_1")))
+                    .andExpect(content().string(containsString("JOB_OPENING_UUID_2")));
+            }
+
+            @Test
+            @DisplayName("Get empty List")
+            void getEmptyList() throws Exception {
+                List<JobOpeningListDto> jobOpeningListDtos = List.of();
+                GetJobOpeningsResponseDto getJobOpeningsResponseDto
+                    = new GetJobOpeningsResponseDto(jobOpeningListDtos);
+
+                String keyword = null;
+
+                given(jobOpeningRepository.findAllJobOpenings(keyword))
+                    .willReturn(getJobOpeningsResponseDto);
+
+                mockMvc.perform(get("/job-openings"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().string(containsString("[]")));
+            }
         }
 
-        @Test
-        @DisplayName("Get empty List")
-        void getEmptyList() throws Exception {
-            List<JobOpeningListDto> jobOpeningListDtos = List.of();
-            GetJobOpeningsResponseDto getJobOpeningsResponseDto
-                = new GetJobOpeningsResponseDto(jobOpeningListDtos);
+        @Nested
+        @DisplayName("With query parameters")
+        class withQueryParameters {
+            @Test
+            @DisplayName("Get search result List of JobOpenings")
+            void getList() throws Exception {
+                List<JobOpeningListDto> jobOpeningListDtos = List.of(
+                    JobOpeningListDto.builder()
+                        .id("JOB_OPENING_UUID_2")
+                        .companyName("Very Huge Dinosaur Company")
+                        .companyCountry("USA")
+                        .companyRegion("New York City")
+                        .positionName("Majestic Developer")
+                        .rewards(1_000_000_000_000L)
+                        .techStackNames(List.of("Power"))
+                        .build()
+                );
+                GetJobOpeningsResponseDto getJobOpeningsResponseDto
+                    = new GetJobOpeningsResponseDto(jobOpeningListDtos);
 
-            given(jobOpeningRepository.findAllJobOpenings())
-                .willReturn(getJobOpeningsResponseDto);
+                String keyword = "Dinosaur";
 
-            mockMvc.perform(get("/job-openings"))
-                .andExpect(status().isOk())
-                .andExpect(content().string(containsString("[]")));
+                given(jobOpeningRepository.findAllJobOpenings(keyword))
+                    .willReturn(getJobOpeningsResponseDto);
+
+                mockMvc.perform(get("/job-openings")
+                        .param("keyword", keyword))
+                    .andExpect(status().isOk())
+                    .andExpect(content().string(containsString("JOB_OPENING_UUID_2")));
+            }
         }
     }
 
