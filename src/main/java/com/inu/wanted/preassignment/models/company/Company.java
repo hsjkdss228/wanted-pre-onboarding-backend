@@ -1,5 +1,6 @@
 package com.inu.wanted.preassignment.models.company;
 
+import com.inu.wanted.preassignment.models.jobopening.JobOpeningId;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.EmbeddedId;
@@ -62,5 +63,17 @@ public class Company {
         this.id = builder.id;
         this.name = builder.name;
         this.location = builder.location;
+    }
+
+    public String name() {
+        return name.value();
+    }
+
+    public String country() {
+        return location.country();
+    }
+
+    public String region() {
+        return location.region();
     }
 }

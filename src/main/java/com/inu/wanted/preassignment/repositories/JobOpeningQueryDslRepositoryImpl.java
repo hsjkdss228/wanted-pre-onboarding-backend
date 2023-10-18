@@ -2,9 +2,12 @@ package com.inu.wanted.preassignment.repositories;
 
 import com.inu.wanted.preassignment.dtos.GetJobOpeningsResponseDto;
 import com.inu.wanted.preassignment.dtos.JobOpeningListDto;
+import com.inu.wanted.preassignment.dtos.JobOpeningListInDetailDto;
 import com.inu.wanted.preassignment.models.TechStack;
+import com.inu.wanted.preassignment.models.company.CompanyId;
 import com.inu.wanted.preassignment.models.jobopening.JobOpeningId;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
@@ -139,5 +142,24 @@ public class JobOpeningQueryDslRepositoryImpl implements
                     .build();
             })
             .toList();
+    }
+
+    @Override
+    public List<JobOpeningListInDetailDto> findAllOtherJobOpenings(
+        JobOpeningId jobOpeningId,
+        CompanyId companyId
+    ) {
+        return jpaQueryFactory
+            .select(Projections.constructor(
+                JobOpeningListInDetailDto.class,
+                jobOpening.id.value,
+                jobOpening.position.name
+            ))
+            .from(jobOpening)
+            .innerJoin(company).on(company.id.eq(jobOpening.companyId))
+            .where(company.id.eq(companyId)
+                .and(jobOpening.id.eq(jobOpeningId).not()))
+            .orderBy(jobOpening.createdAt.desc())
+            .fetch();
     }
 }

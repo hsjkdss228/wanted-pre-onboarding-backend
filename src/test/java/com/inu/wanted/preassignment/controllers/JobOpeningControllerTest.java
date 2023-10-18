@@ -2,10 +2,13 @@ package com.inu.wanted.preassignment.controllers;
 
 import com.inu.wanted.preassignment.applications.CreateJobOpeningService;
 import com.inu.wanted.preassignment.applications.DeleteJobOpeningService;
+import com.inu.wanted.preassignment.applications.GetJobOpeningDetailService;
 import com.inu.wanted.preassignment.applications.ModifyJobOpeningService;
 import com.inu.wanted.preassignment.dtos.CreateJobOpeningRequestDto;
 import com.inu.wanted.preassignment.dtos.CreateJobOpeningResponseDto;
+import com.inu.wanted.preassignment.dtos.GetJobOpeningDetailResponseDto;
 import com.inu.wanted.preassignment.dtos.GetJobOpeningsResponseDto;
+import com.inu.wanted.preassignment.dtos.JobOpeningDetailDto;
 import com.inu.wanted.preassignment.dtos.JobOpeningListDto;
 import com.inu.wanted.preassignment.exceptions.CompanyNotFound;
 import com.inu.wanted.preassignment.exceptions.JobOpeningNotFound;
@@ -39,6 +42,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class JobOpeningControllerTest {
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private GetJobOpeningDetailService getJobOpeningDetailService;
 
     @MockBean
     private CreateJobOpeningService createJobOpeningService;
@@ -143,6 +149,60 @@ class JobOpeningControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(content().string(containsString("JOB_OPENING_UUID_2")));
             }
+        }
+    }
+
+    @Nested
+    @DisplayName("GET /job-openings/{jobOpeningId}")
+    class getJobOpening {
+        @Test
+        @DisplayName("Success")
+        void created() throws Exception {
+            String jobOpeningId = "JOB_OPENING_UUID";
+
+            JobOpeningDetailDto jobOpeningDetailDto
+                = JobOpeningDetailDto.builder()
+                .id(jobOpeningId)
+                .companyName("Oceania Aviation")
+                .companyCountry("Australia")
+                .companyRegion("Brisbane")
+                .positionName("Flight Crew")
+                .rewards(2_000_000L)
+                .techStackNames(List.of("English", "Chinese"))
+                .descriptionBody("We're hiring for a friendly Flight Crew.")
+                .otherJobOpenings(List.of())
+                .build();
+
+            GetJobOpeningDetailResponseDto getJobOpeningDetailResponseDto
+                = GetJobOpeningDetailResponseDto.builder()
+                .jobOpening(jobOpeningDetailDto)
+                .build();
+
+            given(getJobOpeningDetailService.getJobOpeningDetail(jobOpeningId))
+                .willReturn(getJobOpeningDetailResponseDto);
+
+            mockMvc.perform(get("/job-openings/JOB_OPENING_UUID"))
+                .andExpect(status().isOk());
+        }
+
+        @Test
+        @DisplayName("Failed: Throws JobOpeningNotFound")
+        void jobOpeningNotFound() throws Exception {
+            given(getJobOpeningDetailService.getJobOpeningDetail(any()))
+                .willThrow(JobOpeningNotFound.class);
+
+            mockMvc.perform(get("/job-openings/JOB_OPENING_UUID"))
+                .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("Failed: Throws CompanyNotFound")
+        void companyNotFound() throws Exception {
+            given(getJobOpeningDetailService.getJobOpeningDetail(any()))
+                .willThrow(CompanyNotFound.class);
+
+            mockMvc.perform(get("/job-openings/JOB_OPENING_UUID"))
+                .andExpect(status().isNotFound());
         }
     }
 

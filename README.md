@@ -25,6 +25,7 @@
 - [채용공고 삭제]
 - [채용공고 목록 조회]
 - [채용공고 검색]
+- [채용공고 상세 페이지 조회]
 
 [//]: # (외부 링크 모음)
 
@@ -35,3 +36,4 @@
 [채용공고 삭제]: https://docs.google.com/document/d/1tHIuKnIGatT6ntCYUXRNKZoaAIBDZPIFrmPuuEMaZqg/edit?usp=sharing
 [채용공고 목록 조회]: https://docs.google.com/document/d/1eelYv_bYp5m2-OpiJ3b6XXzlLdn4p0mlK5Lwl7zA7BI/edit?usp=sharing
 [채용공고 검색]: https://docs.google.com/document/d/1fZvR-h3nuPZD04Hcpq3P_UJOQ1_wT1-2FCquPWf7ljY/edit?usp=sharing
+[채용공고 상세 페이지 조회]: https://docs.google.com/document/d/1eUNkkd-Mq-2zocZoo9wgbMyTNPZrilI59pnDm4e8s3A/edit?usp=sharing

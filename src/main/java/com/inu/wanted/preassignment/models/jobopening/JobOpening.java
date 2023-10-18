@@ -1,7 +1,11 @@
 package com.inu.wanted.preassignment.models.jobopening;
 
+import com.inu.wanted.preassignment.dtos.GetJobOpeningDetailResponseDto;
+import com.inu.wanted.preassignment.dtos.JobOpeningDetailDto;
+import com.inu.wanted.preassignment.dtos.JobOpeningListInDetailDto;
 import com.inu.wanted.preassignment.models.Money;
 import com.inu.wanted.preassignment.models.TechStack;
+import com.inu.wanted.preassignment.models.company.Company;
 import com.inu.wanted.preassignment.models.company.CompanyId;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.CollectionTable;
@@ -110,6 +114,10 @@ public class JobOpening {
         this.techStacks.addAll(builder.techStacks);
     }
 
+    public CompanyId companyId() {
+        return companyId;
+    }
+
     public void changePosition(String name) {
         position = new JobOpeningPosition(name);
     }
@@ -126,5 +134,32 @@ public class JobOpening {
     public void changeTechStacks(List<String> names) {
         techStacks.clear();
         names.forEach(name -> techStacks.add(new TechStack(name)));
+    }
+
+    public GetJobOpeningDetailResponseDto toDetailResponseDto(
+        Company company,
+        List<JobOpeningListInDetailDto> otherJobOpenings
+    ) {
+        List<String> techStackNames = techStacks
+            .stream()
+            .map(TechStack::name)
+            .toList();
+
+        JobOpeningDetailDto jobOpeningDetailDto
+            = JobOpeningDetailDto.builder()
+            .id(id.value())
+            .companyName(company.name())
+            .companyCountry(company.country())
+            .companyRegion(company.region())
+            .positionName(position.name())
+            .rewards(rewards.value())
+            .techStackNames(techStackNames)
+            .descriptionBody(description.body())
+            .otherJobOpenings(otherJobOpenings)
+            .build();
+
+        return GetJobOpeningDetailResponseDto.builder()
+            .jobOpening(jobOpeningDetailDto)
+            .build();
     }
 }
