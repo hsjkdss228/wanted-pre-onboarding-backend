@@ -114,6 +114,10 @@ public class JobOpening {
         this.techStacks.addAll(builder.techStacks);
     }
 
+    public JobOpeningId id() {
+        return id;
+    }
+
     public CompanyId companyId() {
         return companyId;
     }

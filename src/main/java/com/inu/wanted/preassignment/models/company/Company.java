@@ -1,6 +1,5 @@
 package com.inu.wanted.preassignment.models.company;
 
-import com.inu.wanted.preassignment.models.jobopening.JobOpeningId;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.EmbeddedId;

@@ -9,4 +9,8 @@ public class UUIDGenerator {
     public String generateRandomJobOpeningUUID() {
         return "JOB_OPENING_" + UUID.randomUUID();
     }
+
+    public String generateRandomApplicationUUID() {
+        return "APPLICATION_" + UUID.randomUUID();
+    }
 }
