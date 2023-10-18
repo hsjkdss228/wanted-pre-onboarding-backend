@@ -21,4 +21,12 @@ class UUIDGeneratorTest {
 
         assertThat(jobOpeningId).startsWith("JOB_OPENING_");
     }
+
+    @Test
+    @DisplayName("Generate Random applicationUUID")
+    void generateRandomApplicationUUID() {
+        String applicationId = uuidGenerator.generateRandomApplicationUUID();
+
+        assertThat(applicationId).startsWith("APPLICATION_");
+    }
 }
