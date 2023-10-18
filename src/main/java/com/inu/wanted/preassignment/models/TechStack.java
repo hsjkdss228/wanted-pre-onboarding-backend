@@ -18,6 +18,10 @@ public class TechStack {
         this.name = name;
     }
 
+    public static TechStack of(String name) {
+        return new TechStack(name);
+    }
+
     public String name() {
         return name;
     }

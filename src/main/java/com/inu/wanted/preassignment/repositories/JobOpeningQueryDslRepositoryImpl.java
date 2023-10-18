@@ -27,7 +27,7 @@ public class JobOpeningQueryDslRepositoryImpl implements
     }
 
     @Override
-    public GetJobOpeningsResponseDto findAllJobOpenings() {
+    public GetJobOpeningsResponseDto findAllJobOpenings(String keyword) {
         JPAQuery<Tuple> query = jpaQueryFactory
             .select(
                 jobOpening.id.value,
@@ -40,47 +40,46 @@ public class JobOpeningQueryDslRepositoryImpl implements
             .from(jobOpening)
             .innerJoin(company).on(company.id.eq(jobOpening.companyId));
 
-        List<Tuple> jobOpeningListDtosWithoutTechStackNames = query
-            .orderBy(jobOpening.createdAt.desc())
-            .fetch();
+        if (keyword != null) {
+            query = filter(query, keyword);
+        }
+
+        List<Tuple> jobOpeningListDtosWithoutTechStackNames = queryResult(query);
 
         Map<String, List<String>> jobOpeningIdTechStackNamesPairs
-            = new HashMap<>();
+            = pair(jobOpeningListDtosWithoutTechStackNames);
 
-        pairJobOpeningIdAndTechStackNames(
+        List<JobOpeningListDto> jobOpeningListDtos = toJobOpeningListDtos(
             jobOpeningListDtosWithoutTechStackNames,
             jobOpeningIdTechStackNamesPairs
         );
 
-        List<JobOpeningListDto> jobOpeningListDtos
-            = jobOpeningListDtosWithoutTechStackNames
-            .stream()
-            .map(tuple -> {
-                Long rewards = tuple
-                    .get(jobOpening.rewards.rewards)
-                    .amount();
-                List<String> techStackNames = jobOpeningIdTechStackNamesPairs
-                    .get(tuple.get(jobOpening.id.value));
-
-                return JobOpeningListDto.builder()
-                    .id(tuple.get(jobOpening.id.value))
-                    .companyName(tuple.get(company.name.value))
-                    .companyCountry(tuple.get(company.location.country))
-                    .companyRegion(tuple.get(company.location.region))
-                    .positionName(tuple.get(jobOpening.position.name))
-                    .rewards(rewards)
-                    .techStackNames(techStackNames)
-                    .build();
-            })
-            .toList();
-
         return new GetJobOpeningsResponseDto(jobOpeningListDtos);
     }
 
-    private void pairJobOpeningIdAndTechStackNames(
-        List<Tuple> jobOpeningListDtosWithoutTechStackNames,
-        Map<String, List<String>> jobOpeningIdTechStackNamesPairs
+    private JPAQuery<Tuple> filter(JPAQuery<Tuple> query, String keyword) {
+        TechStack techStack = TechStack.of(keyword);
+
+        return query
+            .where(company.name.value.like("%" + keyword + "%")
+                .or(company.location.country.like("%" + keyword + "%"))
+                .or(company.location.region.like("%" + keyword + "%"))
+                .or(jobOpening.position.name.like("%" + keyword + "%"))
+                .or(jobOpening.techStacks.contains(techStack))
+            );
+    }
+
+    private List<Tuple> queryResult(JPAQuery<Tuple> query) {
+        return query
+            .orderBy(jobOpening.createdAt.desc())
+            .fetch();
+    }
+
+    private Map<String, List<String>> pair(
+        List<Tuple> jobOpeningListDtosWithoutTechStackNames
     ) {
+        Map<String, List<String>> jobOpeningIdTechStackNamesPairs = new HashMap<>();
+
         List<JobOpeningId> jobOpeningIds = jobOpeningListDtosWithoutTechStackNames
             .stream()
             .map(tuple -> JobOpeningId.of(tuple.get(jobOpening.id.value)))
@@ -112,5 +111,33 @@ public class JobOpeningQueryDslRepositoryImpl implements
 
             jobOpeningIdTechStackNamesPairs.get(jobOpeningId).add(techStackName);
         });
+
+        return jobOpeningIdTechStackNamesPairs;
+    }
+
+    private List<JobOpeningListDto> toJobOpeningListDtos(
+        List<Tuple> jobOpeningListDtosWithoutTechStackNames,
+        Map<String, List<String>> jobOpeningIdTechStackNamesPairs
+    ) {
+        return jobOpeningListDtosWithoutTechStackNames
+            .stream()
+            .map(tuple -> {
+                Long rewards = tuple
+                    .get(jobOpening.rewards.rewards)
+                    .amount();
+                List<String> techStackNames = jobOpeningIdTechStackNamesPairs
+                    .get(tuple.get(jobOpening.id.value));
+
+                return JobOpeningListDto.builder()
+                    .id(tuple.get(jobOpening.id.value))
+                    .companyName(tuple.get(company.name.value))
+                    .companyCountry(tuple.get(company.location.country))
+                    .companyRegion(tuple.get(company.location.region))
+                    .positionName(tuple.get(jobOpening.position.name))
+                    .rewards(rewards)
+                    .techStackNames(techStackNames)
+                    .build();
+            })
+            .toList();
     }
 }
