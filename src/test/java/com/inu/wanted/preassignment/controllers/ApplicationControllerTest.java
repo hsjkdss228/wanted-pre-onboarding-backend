@@ -1,7 +1,6 @@
-package com.inu.wanted.preassignment.repositories;
+package com.inu.wanted.preassignment.controllers;
 
 import com.inu.wanted.preassignment.applications.ApplyJobOpeningService;
-import com.inu.wanted.preassignment.controllers.ApplicationController;
 import com.inu.wanted.preassignment.dtos.CreateApplicationRequestDto;
 import com.inu.wanted.preassignment.dtos.CreateApplicationResponseDto;
 import com.inu.wanted.preassignment.exceptions.AlreadyAppliedJobOpening;
@@ -48,11 +47,11 @@ class ApplicationControllerTest {
             mockMvc.perform(post("/applications")
                     .contentType("application/json")
                     .content("""
-                    {
-                        "jobOpeningId": "JOB_OPENING_UUID",
-                        "userId": "USER_UUID"
-                    }
-                    """))
+                        {
+                            "jobOpeningId": "JOB_OPENING_UUID",
+                            "userId": "USER_UUID"
+                        }
+                        """))
                 .andExpect(status().isCreated());
         }
 
@@ -62,11 +61,11 @@ class ApplicationControllerTest {
             mockMvc.perform(post("/applications")
                     .contentType("application/json")
                     .content("""
-                    {
-                        "jobOpeningId": "   ",
-                        "userId": "USER_UUID"
-                    }
-                    """))
+                        {
+                            "jobOpeningId": "   ",
+                            "userId": "USER_UUID"
+                        }
+                        """))
                 .andExpect(status().isBadRequest());
 
             verify(applyJobOpeningService, never()).apply(any());
@@ -78,11 +77,11 @@ class ApplicationControllerTest {
             mockMvc.perform(post("/applications")
                     .contentType("application/json")
                     .content("""
-                    {
-                        "jobOpeningId": "JOB_OPENING_UUID",
-                        "userId": null
-                    }
-                    """))
+                        {
+                            "jobOpeningId": "JOB_OPENING_UUID",
+                            "userId": null
+                        }
+                        """))
                 .andExpect(status().isBadRequest());
 
             verify(applyJobOpeningService, never()).apply(any());
@@ -96,13 +95,13 @@ class ApplicationControllerTest {
                 .willThrow(JobOpeningNotFound.class);
 
             mockMvc.perform(post("/applications")
-                .contentType("application/json")
-                .content("""
-                    {
-                        "jobOpeningId": "JOB_OPENING_BAD_UUID",
-                        "userId": "USER_UUID"
-                    }
-                    """))
+                    .contentType("application/json")
+                    .content("""
+                        {
+                            "jobOpeningId": "JOB_OPENING_BAD_UUID",
+                            "userId": "USER_UUID"
+                        }
+                        """))
                 .andExpect(status().isNotFound());
         }
 
@@ -116,11 +115,11 @@ class ApplicationControllerTest {
             mockMvc.perform(post("/applications")
                     .contentType("application/json")
                     .content("""
-                    {
-                        "jobOpeningId": "JOB_OPENING_BAD_UUID",
-                        "userId": "USER_UUID"
-                    }
-                    """))
+                        {
+                            "jobOpeningId": "JOB_OPENING_BAD_UUID",
+                            "userId": "USER_UUID"
+                        }
+                        """))
                 .andExpect(status().isNotFound());
         }
 
@@ -134,11 +133,11 @@ class ApplicationControllerTest {
             mockMvc.perform(post("/applications")
                     .contentType("application/json")
                     .content("""
-                    {
-                        "jobOpeningId": "JOB_OPENING_UUID",
-                        "userId": "USER_UUID"
-                    }
-                    """))
+                        {
+                            "jobOpeningId": "JOB_OPENING_UUID",
+                            "userId": "USER_UUID"
+                        }
+                        """))
                 .andExpect(status().isConflict());
         }
     }

@@ -80,7 +80,7 @@ class ModifyJobOpeningServiceTest {
 
         ModifyJobOpeningRequestDto modifyJobOpeningRequestDto
             = ModifyJobOpeningRequestDto.builder()
-                .build();
+            .build();
 
         assertThrows(JobOpeningNotFound.class, () -> modifyJobOpeningService
             .modifyJobOpening(jobOpeningId, modifyJobOpeningRequestDto));
